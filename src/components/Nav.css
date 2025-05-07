@@ -1,0 +1,27 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 5px; 
+}
+
+.logo img {
+  height: 50px; 
+  width: auto;
+}
+.logo-text {
+  color: var(--main-color);
+
+  font-size: 1.5rem; 
+  font-weight: bold;
+  /* color: var(--btn-color); */
+}
+@media (max-width: 768px) {
+  .navbar-mobile-menu {
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+/* Ensure the hover effect works for desktop menu */
+.nav-link:hover + hr {
+  display: block;
+}
