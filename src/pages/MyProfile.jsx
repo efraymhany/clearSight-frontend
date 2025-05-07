@@ -191,9 +191,8 @@ const MyProfile = () => {
             Accept: "application/json",
           },
         });
-
-        if (response.status === 200 && response.data) {
-          setProfileData(response.data);
+        if (response.status === 200 && response?.data?.success) {
+          setProfileData(response.data.data);
         } else {
           throw new Error("Unexpected response from server.");
         }

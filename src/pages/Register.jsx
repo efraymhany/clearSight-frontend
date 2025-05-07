@@ -206,7 +206,7 @@
 //       setLoading(false)
 
 //       const responseData = response.data; // Correctly extracting response data
-      
+
 //       if (responseData.success) {
 //         localStorage.setItem("token", responseData.token);
 //         setToken(responseData.token);
@@ -214,7 +214,7 @@
 //       } else {
 //         toast.error(responseData.message);
 //       }
-      
+
 
 //     //   const response = await axios.post(backendUrl +`/Auth/register`
 //     // ,
@@ -409,14 +409,14 @@
 //       toast.success("Sign up successful!");
 //       toast.info("A verification code has been sent to your email.");
 //       setLoading(false);
-    
+
 
 //       const responseData = response.data;
 
 //       if (responseData.success) {
 //         localStorage.setItem("token", responseData.token);
 //         setToken(responseData.token);
-      
+
 //       } else {
 //         toast.error(responseData.message);
 //       }
@@ -789,8 +789,9 @@ const Register = () => {
       });
 
       const responseData = response.data;
-
-      if (response.status === 200 && responseData.data.success) {
+      console.log(responseData);
+      console.log(response);
+      if (responseData.statusCode === 200 && responseData.success) {
         toast.success("Sign up successful!");
         toast.info("A verification code has been sent to your email.");
         setSuccess("Registration successful! Check your email to confirm your account.");

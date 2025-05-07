@@ -27,16 +27,17 @@ const App = () => {
         formData,
         {
           headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Accept": "application/json", // Ensure the accept header is correct
           },
         }
       );
-      setResponse(res.data);
+      setResponse(res.data.data);
       setError(null);
     } catch (err) {
       // Display the backend error message if available, otherwise show a generic error
       setError(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         "An unexpected error occurred. Please try again later."
       );
       setResponse(null);
