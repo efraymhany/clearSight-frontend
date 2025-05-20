@@ -248,6 +248,104 @@
 // ===========================
 
 
+// import { createContext, useEffect, useState } from "react";
+// import axios from "axios";
+
+// export const AppContext = createContext();
+
+// const AppContextProvider = ({ children }) => {
+//   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+//   const [token, setToken] = useState(localStorage.getItem("token") || "");
+//   const [userData, setUserData] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   useEffect(() => {
+//     if (token) {
+//       localStorage.setItem("token", token);
+//       // loadUserProfileData();
+//     } else {
+//       localStorage.removeItem("token");
+//       setUserData(null);
+//     }
+//   }, [token]);
+
+
+
+//   const value = {
+//     backendUrl,
+//     token,
+//     setToken,
+//     userData,
+//     loading,
+//     // loadUserProfileData,
+//   };
+
+//   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+// };
+
+// export default AppContextProvider;
+//////////////////////////////////////////////
+
+// import { createContext, useEffect, useState } from "react";
+// import axios from "axios";
+
+// export const AppContext = createContext();
+
+// const AppContextProvider = ({ children }) => {
+//   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+//   const [token, setToken] = useState(localStorage.getItem("token") || "");
+//   const [userData, setUserData] = useState(
+//     JSON.parse(localStorage.getItem("userData")) || null
+//   );
+//   const [loading, setLoading] = useState(false);
+
+//   // Update localStorage when token or userData changes
+//   useEffect(() => {
+//     if (token) {
+//       localStorage.setItem("token", token);
+//     } else {
+//       localStorage.removeItem("token");
+//     }
+//   }, [token]);
+
+//   useEffect(() => {
+//     if (userData) {
+//       localStorage.setItem("userData", JSON.stringify(userData));
+//     } else {
+//       localStorage.removeItem("userData");
+//     }
+//   }, [userData]);
+
+//   // ✅ تسجيل الدخول (من المفترض تجيب بيانات من الـ backend وتحدد الـ role)
+//   const login = (token, userInfo) => {
+//     setToken(token);
+//     setUserData(userInfo); // لازم userInfo يحتوي على role مثل { email: "...", role: "patient" }
+//   };
+
+//   // ✅ تسجيل الخروج
+//   const logout = () => {
+//     setToken("");
+//     setUserData(null);
+//   };
+
+//   const value = {
+//     backendUrl,
+//     token,
+//     setToken,
+//     userData,
+//     setUserData,
+//     loading,
+//     setLoading,
+//     login,
+//     logout,
+//   };
+
+//   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+// };
+
+// export default AppContextProvider;
+/////////////////////////////////////////////////
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 
@@ -255,37 +353,76 @@ export const AppContext = createContext();
 
 const AppContextProvider = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(
+    JSON.parse(localStorage.getItem("userData")) || null
+  );
   const [loading, setLoading] = useState(false);
 
+  // استخراج الدور من بيانات المستخدم
+  const role = userData?.role || "";
+
+  // حفظ التوكن في localStorage
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
-      loadUserProfileData();
     } else {
       localStorage.removeItem("token");
-      setUserData(null);
     }
   }, [token]);
 
+  // حفظ بيانات المستخدم في localStorage
+  useEffect(() => {
+    if (userData) {
+      localStorage.setItem("userData", JSON.stringify(userData));
+    } else {
+      localStorage.removeItem("userData");
+    }
+  }, [userData]);
+
+  // تحميل بيانات البروفايل من السيرفر
   const loadUserProfileData = async () => {
     if (!token) return;
 
-    setLoading(true);
     try {
-      const response = await axios.get(`${backendUrl}/Patients/Profile`, {
+      setLoading(true);
+
+      const response = await axios.get(`${backendUrl}/Auth/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.data.success) {
-        setUserData(response.data.user || {});
+
+      if (response.status === 200 && response.data) {
+        setUserData(response.data); // تأكد أن response.data يحتوي على role
+      } else {
+        throw new Error("Invalid profile response");
       }
-    } catch (err) {
-      console.error("Failed to load profile:", err);
+    } catch (error) {
+      console.error("⚠️ Failed to load profile:", error);
       setUserData(null);
+      setToken("");
     } finally {
       setLoading(false);
     }
+  };
+
+  // تحميل البروفايل تلقائيًا عند توفر التوكن
+  useEffect(() => {
+    if (token && !userData) {
+      loadUserProfileData();
+    }
+  }, [token]);
+
+  // تسجيل الدخول
+  const login = (receivedToken, userInfo) => {
+    setToken(receivedToken);
+    setUserData(userInfo); // يجب أن تحتوي userInfo على role وبيانات المستخدم
+  };
+
+  // تسجيل الخروج
+  const logout = () => {
+    setToken("");
+    setUserData(null);
   };
 
   const value = {
@@ -293,7 +430,12 @@ const AppContextProvider = ({ children }) => {
     token,
     setToken,
     userData,
+    setUserData,
+    role,
     loading,
+    setLoading,
+    login,
+    logout,
     loadUserProfileData,
   };
 
