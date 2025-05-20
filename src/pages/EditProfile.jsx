@@ -1,229 +1,185 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
-import { toast } from "react-toastify";
-import axios from "axios";
+import React, { useState, useEffect, useContext } from 'react';
+import { AppContext } from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const EditProfile = () => {
-  const { backendUrl, token, profileImage, setProfileImage, loadUserProfileData } = useContext(AppContext);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const fileInputRef = useRef(null);
-
-  // Initialize state with profile data passed from MyProfile (if available)
-  const [profileData, setProfileData] = useState(location.state?.profileData || null);
-  const [fullName, setFullName] = useState(profileData?.fullName || "");
-  const [phoneNumber, setPhoneNumber] = useState(profileData?.phoneNumbers?.[0] || "");
-  const [newProfileImage, setNewProfileImage] = useState(profileImage || profileData?.profileImagePath || null);
+  const { token, backendUrl } = useContext(AppContext);
+  const [profile, setProfile] = useState(null);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phoneNumbers: '',
+    profileImage: null,
+  });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch profile data if not passed via navigation state
-  useEffect(() => {
-    if (!token) {
-      toast.error("Please log in to edit your profile.");
-      navigate("/login");
-      return;
-    }
+  const fetchPatientProfile = async () => {
+    if (!token) return setError('Authentication token is missing. Please log in again.');
 
-    if (!profileData) {
-      const fetchProfileData = async () => {
-        try {
-          const response = await axios.get(`${backendUrl}/Patients/Profile`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          });
-
-          if (response.status === 200 && response.data) {
-            setProfileData(response.data.user);
-            setFullName(response.data.user?.fullName || "");
-            setPhoneNumber(response.data.user?.phoneNumbers?.[0] || "");
-            setNewProfileImage(profileImage || response.data.user?.profileImagePath || null);
-          } else {
-            throw new Error("Unexpected response from server.");
-          }
-        } catch (err) {
-          const errorMessage =
-            err.response?.data?.err_message ||
-            err.response?.data?.message ||
-            "Failed to fetch profile data.";
-          setError(errorMessage);
-          toast.error(errorMessage);
-          if (err.response?.status === 401 || err.response?.status === 400) {
-            navigate("/login");
-          }
-        }
-      };
-
-      fetchProfileData();
-    }
-  }, [backendUrl, token, navigate, profileData, profileImage]);
-
-  // Handle file selection for profile image
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
-        setNewProfileImage(base64String); // Update local state for preview
-        toast.success("Profile image selected!");
-      };
-      reader.readAsDataURL(file);
-    } else {
-      toast.error("Please select a valid image file (JPEG or PNG).");
-    }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current.click();
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
     setLoading(true);
-    setError("");
-
     try {
-      const formData = new FormData();
-      formData.append("FullName", fullName);
-      formData.append("PhoneNumbers", JSON.stringify([phoneNumber]));
-
-      // If a new image is selected, append it to the form data
-      if (fileInputRef.current?.files[0]) {
-        formData.append("ProfileImage", fileInputRef.current.files[0]);
-      }
-
-      const response = await axios.post(`${backendUrl}/Patients/EditProfile`, formData, {
+      const res = await fetch(`${backendUrl}/Patients/Profile`, {
+        method: 'GET',
         headers: {
+          Accept: 'application/json',
           Authorization: `Bearer ${token}`,
-          // FormData automatically sets the correct Content-Type
         },
       });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || 'Error loading profile.');
 
-      if (response.data.success) {
-        toast.success("Profile updated successfully!");
-        
-        // Update the profile image in the context if a new image was uploaded
-        if (newProfileImage && newProfileImage !== profileImage) {
-          setProfileImage(newProfileImage);
-          localStorage.setItem("profileImage", newProfileImage);
-        }
-        
-        // Refetch profile data to ensure consistency
-        await loadUserProfileData();
-        navigate("/my-profile");
-      } else {
-        throw new Error(response.data.message || "Failed to update profile.");
-      }
+      setProfile(data.data);
+      setFormData({
+        fullName: data.data.fullName || '',
+        phoneNumbers: data.data.phoneNumbers?.join(', ') || '',
+        profileImage: null,
+      });
+      setPreviewImage(data.data.profileImage || null);
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.err_message ||
-        err.message ||
-        "Failed to update profile.";
-      setError(errorMessage);
-      toast.error(errorMessage);
-      
-      if (err.response?.status === 401) {
-        navigate("/login");
-      }
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen text-red-600">{error}</div>
-    );
-  }
+  useEffect(() => {
+    fetchPatientProfile();
+  }, [token, backendUrl]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, profileImage: file }));
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewImage(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!token) return setError('Missing token');
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('fullName', formData.fullName);
+    formDataToSend.append('phoneNumber', formData.phoneNumbers);
+    if (formData.profileImage) formDataToSend.append('profileImage', formData.profileImage);
+
+    try {
+      const res = await fetch(`${backendUrl}/Patients/EditProfile`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formDataToSend,
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      setSuccess('Profile updated successfully!');
+      setTimeout(() => navigate('/patientProfile'), 1000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md text-left">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-teal-50 flex justify-center items-center py-10 px-4 relative overflow-hidden"
+    >
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute w-32 h-32 bg-[#f17732] rounded-full opacity-20 animate-float-slow" style={{ top: '10%', left: '5%' }}></div>
+        <div className="absolute w-44 h-44 bg-[#5f6FFF] rounded-full opacity-20 animate-float-slower" style={{ bottom: '20%', right: '15%' }}></div>
+        <div className="absolute w-20 h-20 bg-[#f17732] rounded-full opacity-10 animate-float-slower" style={{ top: '60%', left: '10%' }}></div>
+      </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Profile Image */}
-          <div className="flex items-center gap-4 mb-6">
-            <div
-              className="w-24 h-24 bg-indigo-100 rounded-lg flex items-center justify-center cursor-pointer"
-              onClick={handleImageClick}
-            >
-              <img
-                src={newProfileImage || profileData?.profileImagePath || "https://via.placeholder.com/100"}
-                alt="Profile"
-                className="w-20 h-20 rounded-full object-cover"
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/100";
-                }}
-              />
+      <motion.div
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden z-10"
+      >
+        <div className="bg-gradient-to-r from-[#f17732] to-[#5f6FFF] text-white text-center py-6 relative">
+          <button onClick={() => navigate('/patientProfile')} className="absolute left-4 top-4 text-white hover:scale-110 transition">←</button>
+          <h2 className="text-2xl font-bold">{profile?.fullName || 'Edit Profile'}</h2>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="flex flex-col items-center">
+            <div className="w-24 h-24 border-4 border-white rounded-full shadow-md overflow-hidden">
+              {previewImage ? (
+                <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <svg className="w-10 h-10 mx-auto text-[#f17732]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4s-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              )}
             </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/jpeg,image/png"
-              className="hidden"
-            />
           </div>
 
-          {/* Full Name */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2" htmlFor="fullName">
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+          <div>
+            <label className="block text-gray-700 font-medium">Full Name</label>
+            <input name="fullName" type="text" value={formData.fullName} onChange={handleInputChange} className="w-full border rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-[#5f6FFF]" required />
           </div>
 
-          {/* Phone Number */}
-          <div className="mb-6">
-            <label className="block text-gray-700 font-medium mb-2" htmlFor="phoneNumber">
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div>
+            <label className="block text-gray-700 font-medium">Phone Numbers (comma-separated)</label>
+            <input name="phoneNumbers" type="text" value={formData.phoneNumbers} onChange={handleInputChange} className="w-full border rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-[#5f6FFF]" required />
           </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/my-profile")}
-              className="bg-gray-500 text-white px-6 py-2 rounded-full hover:bg-gray-600 transition duration-300"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition duration-300 ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? "Saving..." : "Save"}
+          <div>
+            <label className="block text-gray-700 font-medium">Profile Image</label>
+            <input type="file" accept="image/*" onChange={handleImageChange} className="mt-2" />
+          </div>
+
+          <AnimatePresence>
+            {loading && <p className="text-center text-[#5f6FFF]">Loading...</p>}
+            {error && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-600 bg-red-100 p-3 rounded">{error}</motion.div>}
+            {success && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-green-600 bg-green-100 p-3 rounded">{success}</motion.div>}
+          </AnimatePresence>
+
+          <div className="text-center">
+            <button type="submit" className="px-6 py-2 bg-gradient-to-r from-[#f17732] to-[#5f6FFF] text-white rounded-full hover:scale-105 transition-all duration-300 ease-in-out shadow hover:shadow-md">
+              Save Changes
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+
+      <style>
+        {`
+          @keyframes float-slow {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+          }
+          @keyframes float-slower {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+          }
+          .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
+          .animate-float-slower { animation: float-slower 12s ease-in-out infinite; }
+        `}
+      </style>
+    </motion.div>
   );
 };
 

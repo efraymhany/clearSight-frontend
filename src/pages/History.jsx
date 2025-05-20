@@ -1,26 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
+// import { AppContext } from "./AppContext"; // Import the AppContext for token
 
-const PatientHistory = () => {
-  const [history, setHistory] = useState([]);
+const PatientHistoryPage = () => {
+  const { token } = useContext(AppContext); // Get the token from the AppContext
+  const [patientHistory, setPatientHistory] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchPatientHistory = async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const res = await fetch(`https://clearsight.runasp.net/api/Patients/GetPatientHistory?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data = await res.json();
-      setHistory(data.data || []);
-      setTotalCount(data.totalCount || 0);
+      const response = await axios.get(
+        `https://clearsight.ruwasa.net/api/Patients/GetPatientHistory?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Use the token from context
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const { data } = response.data; // Extract the data object
+      setPatientHistory(data.items || []);
+      setTotalPages(data.totalPages || 1);
     } catch (err) {
-      setError(err.message || "Failed to fetch patient history.");
+      setError(
+        err.response?.data?.message ||
+        "An unexpected error occurred. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -28,88 +42,115 @@ const PatientHistory = () => {
 
   useEffect(() => {
     fetchPatientHistory();
-  }, [pageNumber, pageSize]);
+  }, [pageNumber, pageSize]); // Re-fetch data when pageNumber or pageSize changes
 
-  const handlePageChange = (newPage) => {
-    if (newPage > 0 && newPage <= Math.ceil(totalCount / pageSize)) {
-      setPageNumber(newPage);
+  const handlePageChange = (direction) => {
+    if (direction === "next" && pageNumber < totalPages) {
+      setPageNumber((prev) => prev + 1);
+    } else if (direction === "prev" && pageNumber > 1) {
+      setPageNumber((prev) => prev - 1);
     }
   };
 
-  const handlePageSizeChange = (e) => {
-    setPageSize(Number(e.target.value));
-    setPageNumber(1); // Reset to first page when page size changes
-  };
-
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Patient History</h2>
-      {loading && <p className="text-blue-600">Loading...</p>}
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-      {!loading && !error && history.length === 0 && <p className="text-gray-500">No history available.</p>}
-      {!loading && !error && history.length > 0 && (
-        <>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-700">
+          Patient History
+        </h1>
+
+        {loading && (
+          <div className="text-center text-blue-600">
+            Loading patient history...
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-4 text-red-600 font-medium text-center bg-red-100 p-4 rounded-lg">
+            <strong>Error: </strong>{error}
+          </div>
+        )}
+
+        {!loading && !error && patientHistory.length > 0 && (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
-                <tr className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                  <th className="py-3 px-4 border-b">Doctor</th>
-                  <th className="py-3 px-4 border-b">Patient</th>
-                  <th className="py-3 px-4 border-b">Confidence Path</th>
-                  <th className="py-3 px-4 border-b">Date</th>
-                  <th className="py-3 px-4 border-b">Disease</th>
+                <tr>
+                  <th className="px-6 py-3 border-b text-left text-sm font-medium text-gray-700">
+                    Doctor Name
+                  </th>
+                  <th className="px-6 py-3 border-b text-left text-sm font-medium text-gray-700">
+                    Patient Name
+                  </th>
+                  <th className="px-6 py-3 border-b text-left text-sm font-medium text-gray-700">
+                    Result
+                  </th>
+                  <th className="px-6 py-3 border-b text-left text-sm font-medium text-gray-700">
+                    Date
+                  </th>
                 </tr>
               </thead>
-              <tbody className="text-gray-700">
-                {history.map((item, index) => (
-                  <tr key={index} className="hover:bg-gray-50 border-b">
-                    <td className="py-3 px-4">{item.doctorName}</td>
-                    <td className="py-3 px-4">{item.patientName}</td>
-                    <td className="py-3 px-4">{item.confidencePath}</td>
-                    <td className="py-3 px-4">{item.date}</td>
-                    <td className="py-3 px-4">{item.diseaseName}</td>
+              <tbody>
+                {patientHistory.map((item, index) => (
+                  <tr
+                    key={index}
+                    className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {item.doctorName}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {item.patientName}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {item.fundusCameraResult}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {new Date(item.date).toLocaleDateString()}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
-            <div>
-              <label className="mr-2">Page Size:</label>
-              <select
-                value={pageSize}
-                onChange={handlePageSizeChange}
-                className="border border-gray-300 p-1 rounded-md"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-              </select>
-            </div>
-            <div className="flex mt-2 sm:mt-0">
-              <button
-                onClick={() => handlePageChange(pageNumber - 1)}
-                disabled={pageNumber === 1}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md mr-2 disabled:bg-gray-400"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => handlePageChange(pageNumber + 1)}
-                disabled={pageNumber === Math.ceil(totalCount / pageSize)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:bg-gray-400"
-              >
-                Next
-              </button>
-            </div>
-            <p className="text-gray-600">
-              Page {pageNumber} of {Math.ceil(totalCount / pageSize)}
-            </p>
+        )}
+
+        {!loading && !error && patientHistory.length === 0 && (
+          <div className="text-center text-gray-700">
+            No patient history available.
           </div>
-        </>
-      )}
+        )}
+
+        <div className="flex justify-between items-center mt-6">
+          <button
+            onClick={() => handlePageChange("prev")}
+            disabled={pageNumber === 1}
+            className={`px-4 py-2 rounded-lg ${
+              pageNumber === 1
+                ? "bg-gray-300 text-gray-500"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            Previous
+          </button>
+          <span className="text-gray-700">
+            Page {pageNumber} of {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange("next")}
+            disabled={pageNumber === totalPages}
+            className={`px-4 py-2 rounded-lg ${
+              pageNumber === totalPages
+                ? "bg-gray-300 text-gray-500"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default PatientHistory;
+export default PatientHistoryPage;
