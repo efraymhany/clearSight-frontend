@@ -40,6 +40,20 @@ import aboutimg from './aboutimg.png'
 import aboutimg2 from './header11.png'
 import service from './AI-2.png'
 import serviceimg from './service.jpg'
+import FundusImage from './FundusImage.png'
+import Eye from './Eye.png'
+import Retina from './Retina.png'
+import banner from './banner.jpg'
+import feedback from './feedback.svg'
+import contact from './contact.jpg'
+import avatar from './avatar.png'
+
+
+
+
+
+
+
 
 
 
@@ -47,6 +61,13 @@ import serviceimg from './service.jpg'
 
 export const assets = {
     appointment_img,
+    Eye,
+    avatar,
+    feedback,
+    banner,
+    contact,
+    Retina,
+    FundusImage,
     header_img,
     group_profiles,
     serviceimg,

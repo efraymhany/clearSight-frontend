@@ -105,7 +105,6 @@
 
 
 // // ===================================
-
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AppContext } from '../context/AppContext';
@@ -131,19 +130,6 @@ const Scan = () => {
     formData.append("ScanImage", file);
 
     try {
-<<<<<<< HEAD
-      const res = await axios.post(
-        `https://clearsight.runasp.net/api/Patients/Scan`, // Replace with your API endpoint
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Accept": "application/json", // Ensure the accept header is correct
-          },
-        }
-      );
-      setResponse(res.data.data);
-=======
       const res = await axios.post(`${backendUrl}/Patients/Scan`, formData, {
         headers: {
           "Accept": "application/json",
@@ -151,25 +137,20 @@ const Scan = () => {
         },
       });
       setResponseData(res.data.data);
->>>>>>> 0e977e4 (Updated Navbar with animations and logo effects)
       setError(null);
     } catch (err) {
       setError(
         err.response?.data?.message ||
-<<<<<<< HEAD
-        "An unexpected error occurred. Please try again later."
-=======
           "🚨 An unexpected error occurred. Please try again later."
->>>>>>> 0e977e4 (Updated Navbar with animations and logo effects)
       );
       setResponseData(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-gray-100 to-gray-300 flex items-center justify-center py-10 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-tr from-gray-100 to-gray-300 flex items-center justify-center py-10 px-4 relative overflow-hidden pt-24 mt-1   dark:bg-gray-900 ">
       {/* Background Floating Icons */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none  dark:bg-gray-900 ">
         <svg
           className="absolute w-12 h-12 text-blue-300 opacity-20 animate-float"
           style={{ top: '10%', left: '15%' }}
@@ -323,6 +304,7 @@ const Scan = () => {
 };
 
 export default Scan;
+
 // ===========================================
 
 // import React, { useState, useEffect, useContext } from 'react';

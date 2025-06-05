@@ -26,3 +26,6 @@
     .active p {
       @apply text-white bg-primary}
   }
+  body.dark {
+  @apply text-white bg-gray-900;
+}

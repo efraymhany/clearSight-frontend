@@ -782,8 +782,8 @@
 
 // export default Login;
 /////////////////////////////////////
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 
@@ -795,7 +795,15 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { backendUrl, login, setLoading: setGlobalLoading } = useContext(AppContext);
+
+  // ✅ إذا جاء المستخدم من صفحة التسجيل، اعرض رسالة نجاح
+  useEffect(() => {
+    if (location.state?.registered) {
+      setSuccess("Login successful! Redirecting to homepage...");
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -822,22 +830,25 @@ const Login = () => {
         const role = dataa.data.role || "Patient"; // تأكد من اسم المفتاح الصحيح للدور حسب رد السيرفر
         const userInfo = { email, role };
 
-        // استدعاء login من السياق عشان يخزن التوكن وبيانات المستخدم
+        // حفظ بيانات المستخدم
         login(token, userInfo);
 
-        setSuccess("Login successful! Redirecting...");
+        setSuccess("Login successful! Redirecting to homepage...");
 
-        // التنقل حسب الدور
-        if (role === "Doctor") {
-          navigate("/doctor");
-        } else {
-          navigate("/patient");
-        }
+        // توجيه المستخدم حسب دوره
+        setTimeout(() => {
+                navigate("/");
+
+        }, 1500);
       } else {
-        throw new Error(dataa.message || "Login failed");
+        throw new Error(dataa.message || "فشل تسجيل الدخول");
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "An error occurred during login.");
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "حدث خطأ أثناء تسجيل الدخول."
+      );
     } finally {
       setLoading(false);
       setGlobalLoading(false);
@@ -845,14 +856,15 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-200 p-4">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md text-center">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+    <div className="flex justify-center items-center min-h-screen p-4 pt-24 mt-1 dark:bg-slate-900 bg-slate-300">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center ">
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">Login</h2>
         {error && <p className="text-red-600">{error}</p>}
         {success && <p className="text-green-600">{success}</p>}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            className="w-full p-2 border border-gray-300 rounded hover:border-black focus:border-black-500 focus:ring-1 focus:ring-gray-400 outline-none transition-all duration-300"
+            className="w-full p-2 border border-gray-300 rounded hover:border-black focus:border-black focus:ring-1 focus:ring-gray-400 outline-none transition-all duration-300 dark:bg-gray-700 dark:text-white"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -860,7 +872,7 @@ const Login = () => {
             required
           />
           <input
-            className="w-full p-2 border border-gray-300 rounded hover:border-black focus:border-black-500 focus:ring-1 focus:ring-gray-400 outline-none transition-all duration-300"
+            className="w-full p-2 border border-gray-300 rounded hover:border-black focus:border-black focus:ring-1 focus:ring-gray-400 outline-none transition-all duration-300 dark:bg-gray-700 dark:text-white"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -875,18 +887,26 @@ const Login = () => {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
         <p
           onClick={() => navigate("/forgot-password")}
-          className="mt-4 text-gray-600 hover:text-primary cursor-pointer"
+          className="mt-4 text-gray-600 hover:text-primary cursor-pointer dark:text-gray-300"
         >
           Forgot password?
         </p>
-        <p className="mt-4 text-gray-600">Don't have an account?</p>
+        <p className="mt-4 text-gray-600 dark:text-gray-300">Don't have an account?</p>
         <button
           onClick={() => navigate("/register")}
           className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 mt-2"
         >
           Sign Up
+        </button>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">If you are admin click here</p>
+        <button
+          onClick={() => navigate("/adminLogin")}
+          className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 mt-2"
+        >
+          Admin Iogin
         </button>
       </div>
     </div>

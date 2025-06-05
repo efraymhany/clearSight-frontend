@@ -78,7 +78,7 @@ const Header1 = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col md:flex-row flex-wrap bg-primary rounded-lg px-6 md:px-20 relative overflow-hidden">
+    <div className="flex flex-col md:flex-row flex-wrap bg-primary rounded-lg px-6 md:px-20 relative overflow-hidden pt-22">
       {/* Background Floating Icons */}
       <div className="absolute inset-0 pointer-events-none">
         <svg

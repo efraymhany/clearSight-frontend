@@ -49,7 +49,7 @@ const DoctorSearch = () => {
   }, [query]);
 
   return (
-    <div className="min-h-screen bg-teal-50 py-10 px-6">
+    <div className="min-h-screen bg-teal-50 py-10 px-6  pt-24 mt-1   dark:bg-slate-900 ">
       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-xl p-6">
         <h1 className="text-2xl font-bold text-center text-[#5f6FFF] mb-6">
           Search Doctors
@@ -60,7 +60,7 @@ const DoctorSearch = () => {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg"
+            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg hover:border-spacing-7"
             placeholder="Enter doctor's name"
           />
         </div>

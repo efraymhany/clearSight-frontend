@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 
 const About = () => {
   return (
-    <div className="relative overflow-hidden bg-white px-4 md:px-16 py-10">
+    <div className="relative overflow-hidden bg-white px-4 md:px-16 py-10 pt-24 mt-1  dark:bg-gray-900 ">
 
       {/* Floating Animated Icons */}
       <div className="absolute inset-0 pointer-events-none z-0">
@@ -23,20 +23,20 @@ const About = () => {
 
       {/* Content */}
       <div className="relative z-10">
-        <div className="text-center text-4xl pt-10 pb-8 text-gray-500 animate-fade-in-scale">
+        <div className="text-center text-4xl pt-10 pb-8 text-gray-500 animate-fade-in-scale dark:text-white">
           <p>
-            ABOUT <span className="text-gray-700 font-medium">US</span>
+            ABOUT <span className="text-gray-700 font-medium dark:text-white">US</span>
           </p>
         </div>
 
         <div className="my-10 flex flex-col md:flex-row gap-12 animate-slide-in-left">
           <img className="w-full md:max-w-[360px] rounded-md" src={assets.aboutimg2} alt="About Us" />
           <div className="flex flex-col justify-center gap-6 md:w-1/2 text-sm text-gray-600">
-            <p className="text-[18px]">
+            <p className="text-[18px] dark:text-white">
               ClearSight is a cutting-edge AI-powered application designed to provide instant insights...
             </p>
-            <b className="text-gray-800 font-bold text-xl">Our Vision</b>
-            <p className="text-[18px]">
+            <b className="text-gray-800 font-bold text-xl dark:text-white">Our Vision</b>
+            <p className="text-[18px] dark:text-white">
               At ClearSight, we envision a future where AI-powered vision enhances everyday life...
             </p>
           </div>
