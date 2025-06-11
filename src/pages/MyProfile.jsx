@@ -69,14 +69,18 @@ const PatientProfile = () => {
 
               {/* التفاصيل تحت الصورة */}
               <div className=" px-4 mt-8">
-                <h3 className="text-3xl font-bold mt-8 text-indigo-600 dark:text-indigo-400 text-center">
+                <h3 className="text-3xl font-bold mt-8 text-indigo-600 dark:text-indigo-400 text-center mb-4">
                   {profile.fullName}
                 </h3>
-                <p className="text-xl text-purple-700 dark:text-purple-300 text-center italic">
+                {/* <p className="text-xl text-purple-700 dark:text-purple-300 text-center italic">
                   @{profile.userName}
-                </p>
+                </p> */}
 
                 <div className="text-lg text-gray-700 dark:text-gray-300 space-y-2">
+                    <p>
+                    <span className="font-semibold text-indigo-700 dark:text-indigo-400">UserName:</span>{" "}
+                    <span className="font-medium">  @{profile.userName}</span>
+                  </p>
                   <p>
                     <span className="font-semibold text-indigo-700 dark:text-indigo-400">Email:</span>{" "}
                     <span className="font-medium">{profile.email}</span>

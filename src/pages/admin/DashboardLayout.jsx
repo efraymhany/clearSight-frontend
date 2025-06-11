@@ -1,12 +1,22 @@
-// src/layouts/AdminDashboardLayout.jsx
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo1.png";
+import { useContext } from "react";
+import { AppContext } from "../../context/AppContext";
 
 const DashboardLayout = ({ children }) => {
+  const navigate = useNavigate();
+  const { setToken } = useContext(AppContext); // لو حابب تمسح التوكن عند الخروج
+
+  const handleLogout = () => {
+    // ممكن تمسح التوكن هنا لو حابب
+    setToken(null);
+    navigate("/");
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-gray-800 shadow-md fixed left-0 top-0 h-full z-40">
+      <aside className="w-64 bg-white dark:bg-gray-800 shadow-md fixed left-0 top-0 h-full z-40 flex flex-col justify-between">
         <div>
           {/* Logo */}
           <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-300 dark:border-gray-700">
@@ -17,7 +27,7 @@ const DashboardLayout = ({ children }) => {
           {/* Menu */}
           <nav className="flex flex-col mt-6">
             <NavLink
-              to="/AdminDashboard"
+              to="/adminDashboard"
               className={({ isActive }) =>
                 `px-6 py-3 font-medium transition-all ${
                   isActive
@@ -29,6 +39,16 @@ const DashboardLayout = ({ children }) => {
               Doctor List
             </NavLink>
           </nav>
+        </div>
+
+        {/* Logout Button */}
+        <div className="px-6 py-4 border-t border-gray-300 dark:border-gray-700">
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition-all"
+          >
+            Log Out
+          </button>
         </div>
       </aside>
 

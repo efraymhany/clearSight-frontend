@@ -150,7 +150,7 @@ const Footer = () => {
             <li><NavLink to="/diseases/cataract" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Cataract</NavLink></li>
             <li><NavLink to="/diseases/diabetic-retinopathy" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Diabetic Retinopathy</NavLink></li>
             <li><NavLink to="/diseases/glaucoma" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Glaucoma</NavLink></li>
-            <li><NavLink to="/diseases/macular-degeneration" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Macular Degeneration</NavLink></li>
+            {/* <li><NavLink to="/diseases/macular-degeneration" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Macular Degeneration</NavLink></li> */}
           </ul>
         </div>
 
@@ -160,8 +160,8 @@ const Footer = () => {
           <ul className="space-y-2">
             <li><NavLink to="/login" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Login</NavLink></li>
             <li><NavLink to="/register" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Register</NavLink></li>
-            <li><NavLink to="/profile" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Profile</NavLink></li>
-            <li><NavLink to="/dashboard" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Dashboard</NavLink></li>
+            {/* <li><NavLink to="/profile" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Profile</NavLink></li> */}
+            {/* <li><NavLink to="/dashboard" onClick={() => scrollTo(0, 0)} className="hover:text-primary text-lg font-medium">Dashboard</NavLink></li> */}
           </ul>
         </div>
       </div>

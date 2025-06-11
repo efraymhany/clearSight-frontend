@@ -846,248 +846,7 @@
 // export default DoctorsList;
 
 /////////////////////////////
-import React, { useEffect, useState, useContext } from "react";
-import { AppContext } from "../context/AppContext";
-
-const DoctorsList = () => {
-  const { token } = useContext(AppContext);
-  const [doctors, setDoctors] = useState([]);
-  const [filteredDoctors, setFilteredDoctors] = useState([]);
-  const [accessDoctors, setAccessDoctors] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [query, setQuery] = useState("");
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [searchError, setSearchError] = useState(null);
-  const pageSize = 5;
-
-  const [selectedDoctorToRevoke, setSelectedDoctorToRevoke] = useState(null);
-  const [selectedDoctorDetails, setSelectedDoctorDetails] = useState(null);
-  const [contactDoctor, setContactDoctor] = useState(null);
-  const [cancelContactDoctor, setCancelContactDoctor] = useState(null);
-  const [revokeLoading, setRevokeLoading] = useState(false);
-  const [revokeMessage, setRevokeMessage] = useState(null);
-  const [revokeError, setRevokeError] = useState(null);
-  const [contactedDoctors, setContactedDoctors] = useState([]);
-
-  // Grant Access States
-  const [selectedDoctorToGrant, setSelectedDoctorToGrant] = useState(null);
-  const [grantLoading, setGrantLoading] = useState(false);
-  const [grantMessage, setGrantMessage] = useState(null);
-  const [grantError, setGrantError] = useState(null);
-
-  const sanitizeDoctor = (doc) => ({
-    ...doc,
-    daysOff: Array.isArray(doc.daysOff) ? doc.daysOff : [],
-    phoneNumbers: Array.isArray(doc.phoneNumbers) ? doc.phoneNumbers : [],
-    availableFrom: doc.availableFrom || null,
-    availableTo: doc.availableTo || null,
-    availableForCureentMonth:
-      typeof doc.availableForCureentMonth === "boolean"
-        ? doc.availableForCureentMonth
-        : false,
-    profileImagePath: doc.profileImagePath || "/default-avatar.png",
-    fullName: doc.fullName || "No Name",
-    userName: doc.userName || "N/A",
-    address: doc.address || "N/A",
-  });
-
-  const fetchDoctors = async () => {
-    const response = await fetch(
-      `https://clearsight.runasp.net/api/Patients/DoctorsList?pageNumber=${pageNumber}&pageSize=${pageSize}`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    if (!response.ok) throw new Error("Please login to see Doctors.");
-    const result = await response.json();
-    if (!result.success)
-      throw new Error(result.message || "API returned error.");
-    return (result.data.items || []).map(sanitizeDoctor);
-  };
-
-  const fetchAccessDoctors = async () => {
-    const response = await fetch(
-      `https://clearsight.runasp.net/api/Patients/access-list?pageNumber=1&pageSize=1000`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    if (!response.ok) throw new Error("Please login to see Access List.");
-    const result = await response.json();
-    if (!result.success)
-      throw new Error(result.message || "API returned error.");
-    return result.data.items || [];
-  };
-
-  // Grant Access Function (من GrantAccessPage)
-  const handleGrantAccess = async (doctorId) => {
-    setGrantLoading(true);
-    setGrantMessage(null);
-    setGrantError(null);
-
-    try {
-      const response = await fetch(
-        `https://clearsight.runasp.net/api/Patients/grant-access?doctorId=${doctorId}`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to grant access.");
-      }
-
-      const result = await response.json();
-      if (result.success || response.ok) {
-        setGrantMessage("✅ Access granted successfully!");
-        // Update access doctors list
-        const updatedAccessDoctors = await fetchAccessDoctors();
-        setAccessDoctors(updatedAccessDoctors);
-        // Close modal after 1.5 seconds
-        setTimeout(() => {
-          setSelectedDoctorToGrant(null);
-          setGrantMessage(null);
-        }, 1500);
-      } else {
-        throw new Error(result.message || "Failed to grant access");
-      }
-    } catch (err) {
-      setGrantError(`❌ Error: ${err.message}`);
-    } finally {
-      setGrantLoading(false);
-    }
-  };
-
-  const searchDoctors = async () => {
-    if (!query) {
-      setFilteredDoctors(doctors);
-      return;
-    }
-
-    setSearchLoading(true);
-    setSearchError(null);
-
-    try {
-      const response = await fetch(
-        `https://clearsight.runasp.net/api/Patients/SearchUsingDoctorName?pageNumber=1&pageSize=5&doctorName=${query}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to search for doctors.");
-      }
-
-      const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.message || "API returned error.");
-      }
-
-      setFilteredDoctors((result.data.items || []).map(sanitizeDoctor));
-    } catch (err) {
-      setSearchError(err.message);
-    } finally {
-      setSearchLoading(false);
-    }
-  };
-
-  const loadData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [docs, accessDocs] = await Promise.all([
-        fetchDoctors(),
-        fetchAccessDoctors(),
-      ]);
-      setDoctors(docs);
-      setFilteredDoctors(docs);
-      setAccessDoctors(accessDocs);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [pageNumber]);
-
-  useEffect(() => {
-    searchDoctors();
-  }, [query, doctors]);
-
-  const hasAccess = (doctorId) => {
-    return accessDoctors.some((doc) => doc.doctorId === doctorId);
-  };
-
-  const handleConfirmContact = (doctorId) => {
-    setContactDoctor(null);
-    setContactedDoctors((prev) => [...prev, doctorId]);
-  };
-
-  const handleCancelContact = (doctorId) => {
-    setCancelContactDoctor(null);
-    setContactedDoctors((prev) => prev.filter((id) => id !== doctorId));
-  };
-
-  const handleRevokeAccess = async (doctorId) => {
-    setRevokeLoading(true);
-    setRevokeMessage(null);
-    setRevokeError(null);
-
-    try {
-      const response = await fetch(
-        `https://clearsight.runasp.net/api/Patients/revoke-access?doctorId=${doctorId}`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to revoke access");
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        setRevokeMessage("Access revoked successfully.");
-        setAccessDoctors((prev) => prev.filter((d) => d.doctorId !== doctorId));
-        setSelectedDoctorToRevoke(null);
-      } else {
-        throw new Error(result.message || "Failed to revoke access");
-      }
-    } catch (err) {
-      setRevokeError(err.message);
-    } finally {
-      setRevokeLoading(false);
-    }
-  };
-
-  //   return (
+//   return (
   //     <div className="min-h-screen bg-teal-50 py-10 px-6 pt-24 mt-1 dark:text-white dark:bg-gray-900">
   //       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-xl p-6 dark:bg-slate-900">
   //         <h1 className="text-2xl font-bold text-center text-[#5f6FFF] mb-6">
@@ -1451,6 +1210,248 @@ const DoctorsList = () => {
   //   );
   // };
   ////////////////
+import React, { useEffect, useState, useContext } from "react";
+import { AppContext } from "../context/AppContext";
+
+const DoctorsList = () => {
+  const { token } = useContext(AppContext);
+  const [doctors, setDoctors] = useState([]);
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
+  const [accessDoctors, setAccessDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [query, setQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const pageSize = 5;
+
+  const [selectedDoctorToRevoke, setSelectedDoctorToRevoke] = useState(null);
+  const [selectedDoctorDetails, setSelectedDoctorDetails] = useState(null);
+  const [contactDoctor, setContactDoctor] = useState(null);
+  const [cancelContactDoctor, setCancelContactDoctor] = useState(null);
+  const [revokeLoading, setRevokeLoading] = useState(false);
+  const [revokeMessage, setRevokeMessage] = useState(null);
+  const [revokeError, setRevokeError] = useState(null);
+  const [contactedDoctors, setContactedDoctors] = useState([]);
+
+  // Grant Access States
+  const [selectedDoctorToGrant, setSelectedDoctorToGrant] = useState(null);
+  const [grantLoading, setGrantLoading] = useState(false);
+  const [grantMessage, setGrantMessage] = useState(null);
+  const [grantError, setGrantError] = useState(null);
+
+  const sanitizeDoctor = (doc) => ({
+    ...doc,
+    daysOff: Array.isArray(doc.daysOff) ? doc.daysOff : [],
+    phoneNumbers: Array.isArray(doc.phoneNumbers) ? doc.phoneNumbers : [],
+    availableFrom: doc.availableFrom || null,
+    availableTo: doc.availableTo || null,
+    availableForCureentMonth:
+      typeof doc.availableForCureentMonth === "boolean"
+        ? doc.availableForCureentMonth
+        : false,
+    profileImagePath: doc.profileImagePath || "/default-avatar.png",
+    fullName: doc.fullName || "No Name",
+    userName: doc.userName || "N/A",
+    address: doc.address || "N/A",
+  });
+
+  const fetchDoctors = async () => {
+    const response = await fetch(
+      `https://clearsight.runasp.net/api/Patients/DoctorsList?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) throw new Error("Please login to see Doctors.");
+    const result = await response.json();
+    if (!result.success)
+      throw new Error(result.message || "API returned error.");
+    return (result.data.items || []).map(sanitizeDoctor);
+  };
+
+  const fetchAccessDoctors = async () => {
+    const response = await fetch(
+      `https://clearsight.runasp.net/api/Patients/access-list?pageNumber=1&pageSize=1000`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) throw new Error("Please login to see Access List.");
+    const result = await response.json();
+    if (!result.success)
+      throw new Error(result.message || "API returned error.");
+    return result.data.items || [];
+  };
+
+  // Grant Access Function (من GrantAccessPage)
+  const handleGrantAccess = async (doctorId) => {
+    setGrantLoading(true);
+    setGrantMessage(null);
+    setGrantError(null);
+
+    try {
+      const response = await fetch(
+        `https://clearsight.runasp.net/api/Patients/grant-access?doctorId=${doctorId}`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to grant access.");
+      }
+
+      const result = await response.json();
+      if (result.success || response.ok) {
+        setGrantMessage("✅ Access granted successfully!");
+        // Update access doctors list
+        const updatedAccessDoctors = await fetchAccessDoctors();
+        setAccessDoctors(updatedAccessDoctors);
+        // Close modal after 1.5 seconds
+        setTimeout(() => {
+          setSelectedDoctorToGrant(null);
+          setGrantMessage(null);
+        }, 1500);
+      } else {
+        throw new Error(result.message || "Failed to grant access");
+      }
+    } catch (err) {
+      setGrantError(`❌ Error: ${err.message}`);
+    } finally {
+      setGrantLoading(false);
+    }
+  };
+
+  const searchDoctors = async () => {
+    if (!query) {
+      setFilteredDoctors(doctors);
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchError(null);
+
+    try {
+      const response = await fetch(
+        `https://clearsight.runasp.net/api/Patients/SearchUsingDoctorName?pageNumber=1&pageSize=5&doctorName=${query}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to search for doctors.");
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || "API returned error.");
+      }
+
+      setFilteredDoctors((result.data.items || []).map(sanitizeDoctor));
+    } catch (err) {
+      setSearchError(err.message);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [docs, accessDocs] = await Promise.all([
+        fetchDoctors(),
+        fetchAccessDoctors(),
+      ]);
+      setDoctors(docs);
+      setFilteredDoctors(docs);
+      setAccessDoctors(accessDocs);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [pageNumber]);
+
+  useEffect(() => {
+    searchDoctors();
+  }, [query, doctors]);
+
+  const hasAccess = (doctorId) => {
+    return accessDoctors.some((doc) => doc.doctorId === doctorId);
+  };
+
+  const handleConfirmContact = (doctorId) => {
+    setContactDoctor(null);
+    setContactedDoctors((prev) => [...prev, doctorId]);
+  };
+
+  const handleCancelContact = (doctorId) => {
+    setCancelContactDoctor(null);
+    setContactedDoctors((prev) => prev.filter((id) => id !== doctorId));
+  };
+
+  const handleRevokeAccess = async (doctorId) => {
+    setRevokeLoading(true);
+    setRevokeMessage(null);
+    setRevokeError(null);
+
+    try {
+      const response = await fetch(
+        `https://clearsight.runasp.net/api/Patients/revoke-access?doctorId=${doctorId}`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to revoke access");
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setRevokeMessage("Access revoked successfully.");
+        setAccessDoctors((prev) => prev.filter((d) => d.doctorId !== doctorId));
+        setSelectedDoctorToRevoke(null);
+      } else {
+        throw new Error(result.message || "Failed to revoke access");
+      }
+    } catch (err) {
+      setRevokeError(err.message);
+    } finally {
+      setRevokeLoading(false);
+    }
+  };
+
+  
     return (
     <div className="min-h-screen bg-slate-300 py-10 px-6 pt-24 mt-1 dark:text-white dark:bg-gray-900">
       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-xl p-6 dark:bg-slate-900">
@@ -1458,15 +1459,20 @@ const DoctorsList = () => {
           Doctors List
         </h1>
 
-        <div className="flex justify-center mb-6 dark:bg-slate-900">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg hover:border-spacing-7 dark:text-white"
-            placeholder="Enter doctor's name"
-          />
-        </div>
+    <div className="flex justify-center mb-6 dark:bg-slate-900">
+  <input
+    type="text"
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg 
+               hover:shadow-md focus:outline-none 
+               dark:bg-black dark:text-white 
+               placeholder-gray-500 dark:placeholder-white 
+               transition duration-300"
+    placeholder="Enter doctor's name"
+  />
+</div>
+
 
         {loading && <p className="text-center">Loading...</p>}
         {error && (

@@ -220,6 +220,11 @@ const Register = () => {
     confirmPassword: "",
     role: "Patient",
   });
+const API = import.meta.env.VITE_BACKEND_URL;
+
+
+
+
 
   const { backendUrl, setLoading } = useContext(AppContext);
   const [error, setError] = useState("");
@@ -272,6 +277,13 @@ const Register = () => {
       const response = await axios.post(`${backendUrl}/Auth/register`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      //   const response = await axios.post(`${API}/Auth/register`, data, {
+      //   headers: { "Content-Type": "multipart/form-data" },
+      // });
+      //   const response = await axios.post(`http://localhost:5275/api/Auth/register`, data, {
+      //   headers: { "Content-Type": "multipart/form-data" },
+      // });
+
 
       const responseData = response.data;
 

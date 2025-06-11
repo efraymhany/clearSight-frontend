@@ -360,6 +360,186 @@
 
 // export default PatientsList;
 //////////////
+// import React, { useContext, useEffect, useState } from "react";
+// import axios from "axios";
+// import { AppContext } from "../context/AppContext";
+// import { useNavigate } from "react-router-dom";
+
+// const PatientsList = () => {
+//   const { token, backendUrl } = useContext(AppContext);
+//   const [patients, setPatients] = useState([]);
+//   const [pageNumber, setPageNumber] = useState(1);
+//   const [pageSize] = useState(10);
+//   const [hasNext, setHasNext] = useState(false);
+//   const [hasPrevious, setHasPrevious] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const navigate = useNavigate();
+
+//   const fetchPatients = async () => {
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       const endpoint = searchTerm.trim()
+//         ? `${backendUrl}/Doctors/PatientsListSearch`
+//         : `${backendUrl}/Doctors/PatientsList`;
+
+//       const params = searchTerm.trim()
+//         ? { patientName: searchTerm, pageNumber, pageSize }
+//         : { pageNumber, pageSize };
+
+//       const response = await axios.get(endpoint, {
+//         params,
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           Accept: "application/json",
+//         },
+//       });
+
+//       const data = response.data?.data;
+
+//       if (data?.items && Array.isArray(data.items)) {
+//         setPatients(data.items);
+//         setHasNext(data.hasNext);
+//         setHasPrevious(data.hasPrevious);
+//       } else {
+//         setPatients([]);
+//         setError("No patients found.");
+//       }
+//     } catch (err) {
+//       console.error("Fetch error:", err);
+//       setError("❌ Unauthorized or server error.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (token && backendUrl) fetchPatients();
+//   }, [pageNumber, token]);
+
+//   const handleSearch = (e) => {
+//     e.preventDefault();
+//     setPageNumber(1);
+//     fetchPatients();
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-blue-50 py-10 px-4 mt-14 dark:bg-gray-900">
+//       <div className="max-w-7xl mx-auto">
+//         <h2 className="text-3xl font-bold mb-6 text-blue-800 text-center">
+//           🩺 Patients List
+//         </h2>
+
+//         <form onSubmit={handleSearch} className="mb-6 flex justify-center">
+//           <input
+//             type="text"
+//             placeholder="Search by name or username..."
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//             className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none"
+//           />
+//           <button
+//             type="submit"
+//             className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700"
+//           >
+//             Search
+//           </button>
+//         </form>
+
+//         {loading && (
+//           <div className="text-center text-[#f17732] mb-4">
+//             <span className="animate-spin inline-block w-6 h-6 border-4 border-orange-400 border-t-transparent rounded-full"></span>
+//           </div>
+//         )}
+
+//         {error && (
+//           <div className="bg-red-100 text-red-700 p-4 rounded mb-6 text-center">
+//             {error}
+//           </div>
+//         )}
+
+//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+//           {!loading && patients.length === 0 && !error && (
+//             <p className="text-center text-gray-500 col-span-full">
+//               No patients found on this page.
+//             </p>
+//           )}
+//           {patients.map((patient) => (
+//             <div
+//               key={patient.patientId}
+//               className="border border-blue-200 rounded-xl overflow-hidden bg-white hover:shadow-lg transition-all duration-300"
+//             >
+//               <div className="flex flex-col items-center p-4">
+//                 <img
+//                   className="w-20 h-20 rounded-full object-cover border-2 border-blue-400 mb-3"
+//                   src={patient.profileImagePath || "/default-profile.png"}
+//                   alt="Patient"
+//                 />
+//                 <h3 className="text-xl font-semibold text-gray-900 mb-1">
+//                   {patient.fullName}
+//                 </h3>
+//                 <p className="text-gray-500 text-sm mb-4">
+//                   @{patient.userName}
+//                 </p>
+//                 <div className="flex flex-wrap justify-start items-center gap-4 text-sm text-gray-700 mb-4">
+//                   <span>
+//                     <span className="font-semibold text-primary">Email:</span>{" "}
+//                     {patient.email || "N/A"}
+//                   </span>
+//                   <span>
+//                     <span className="font-semibold text-primary">Phone:</span>{" "}
+//                     {patient.phoneNumbers?.join(", ") || "N/A"}
+//                   </span>
+//                 </div>
+
+//                 <div className="flex flex-col sm:flex-row gap-3 w-full">
+//                   <button
+//                     onClick={() =>
+//                       navigate(`/docPatientHistory/${patient.patientId}`)
+//                     }
+//                     className="w-full bg-blue-600 text-white py-1.5 px-4 rounded hover:bg-blue-700 transition"
+//                   >
+//                     View History
+//                   </button>
+
+//                   <button
+//                     onClick={() => navigate(`/scan/${patient.patientId}`)}
+//                     className="w-full bg-red-500 text-white py-1.5 px-4 rounded hover:bg-red-600 transition"
+//                   >
+//                     Scan Now
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+
+//         <div className="flex justify-center gap-4 mt-10">
+//           <button
+//             className="px-6 py-2 bg-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-400 transition disabled:opacity-50"
+//             onClick={() => setPageNumber((prev) => prev - 1)}
+//             disabled={!hasPrevious}
+//           >
+//             ← Previous
+//           </button>
+//           <button
+//             className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+//             onClick={() => setPageNumber((prev) => prev + 1)}
+//             disabled={!hasNext}
+//           >
+//             Next →
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default PatientsList;
+////////////////
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
@@ -376,6 +556,7 @@ const PatientsList = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  
 
   const fetchPatients = async () => {
     setLoading(true);
@@ -470,48 +651,49 @@ const PatientsList = () => {
           {patients.map((patient) => (
             <div
               key={patient.patientId}
-              className="border border-blue-200 rounded-xl overflow-hidden bg-white hover:shadow-lg transition-all duration-300"
+              className="border border-blue-200 rounded-xl overflow-hidden bg-white hover:shadow-lg transition-all duration-300 p-4"
             >
-              <div className="flex flex-col items-center p-4">
+              <div className="flex items-center gap-6 mb-4">
                 <img
-                  className="w-20 h-20 rounded-full object-cover border-2 border-blue-400 mb-3"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-blue-400"
                   src={patient.profileImagePath || "/default-profile.png"}
                   alt="Patient"
                 />
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  {patient.fullName}
-                </h3>
-                <p className="text-gray-500 text-sm mb-4">
-                  @{patient.userName}
-                </p>
-          <div className="flex flex-wrap justify-start items-center gap-4 text-sm text-gray-700 mb-4">
-  <span>
-    <span className="font-semibold text-primary">Email:</span>{" "}
-    {patient.email || "N/A"}
-  </span>
-  <span>
-    <span className="font-semibold text-primary">Phone:</span>{" "}
-    {patient.phoneNumbers?.join(", ") || "N/A"}
-  </span>
-</div>
-
-                <div className="flex flex-col sm:flex-row gap-3 w-full">
-                  <button
-                    onClick={() =>
-                      navigate(`/docPatientHistory/${patient.patientId}`)
-                    }
-                    className="w-full bg-blue-600 text-white py-1.5 px-4 rounded hover:bg-blue-700 transition"
-                  >
-                    View History
-                  </button>
-
-                  <button
-  onClick={() => navigate(`/scan/${patient.patientId}`)}
-                    className="w-full bg-red-500 text-white py-1.5 px-4 rounded hover:bg-red-600 transition"
-                  >
-                    Scan Now
-                  </button>
+                <div className="flex flex-col space-y-1">
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {patient.fullName}
+                  </h3>
+                  <p className="text-gray-500 text-sm">@{patient.userName}</p>
                 </div>
+              </div>
+
+              <div className="mb-4 space-y-1 text-gray-700 text-sm">
+                <p>
+                  <span className="font-semibold text-primary">Email:</span>{" "}
+                  {patient.email || "N/A"}
+                </p>
+                <p>
+                  <span className="font-semibold text-primary">Phone:</span>{" "}
+                  {patient.phoneNumbers?.join(", ") || "N/A"}
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <button
+                  onClick={() =>
+                    navigate(`/patient-history/${patient.patientId}`)
+                  }
+                  className="w-full bg-blue-600 text-white py-1.5 px-4 rounded hover:bg-blue-700 transition"
+                >
+                  View History
+                </button>
+
+                <button
+                  onClick={() => navigate(`/scan-upload/${patient.patientId}`)}
+                  className="w-full bg-red-500 text-white py-1.5 px-4 rounded hover:bg-red-600 transition"
+                >
+                  Scan Now
+                </button>
               </div>
             </div>
           ))}

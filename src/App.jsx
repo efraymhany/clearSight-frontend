@@ -271,7 +271,7 @@ import PatientsList from "./pages/PatientsList";
 import DoctorProfile from "./pages/DoctorProfile";
 import EditDoctorProfile from "./pages/DoctorEditProfile";
 import AccessList from "./pages/DoctorAccessPatient";
-import DoctorPatientHistory from "./pages/DoctorHistory";
+import PatientHistory2 from "./pages/DoctorHistory";
 import UploadScanImage from "./pages/ScanDoctor";
 import GrantAccessPage from "./pages/GrantAccess";
 import RevokeAccessPage from "./pages/RevokeAccessPage";
@@ -297,7 +297,8 @@ import DashboardLayout from "./pages/admin/DashboardLayout";
 import Cataract from "./pages/Dieses/Cataract";
 import DocPatientHistory from "./pages/DoctorHistory";
 import ActivateAccount from "./pages/ActivateAccount";
-import ScanPatientPage from "./pages/ScanDoctor";
+// import ScanPatientPage from "./pages/ScanDoctor";
+import ScanUpload from "./pages/ScanDoctor";
 
 const App = () => {
   const { userData } = useContext(AppContext); // افتراضياً يوجد userData مع info role
@@ -312,7 +313,7 @@ const App = () => {
 
         <Routes>
           {/* صفحات خاصة بالأدمن بدون Navbar و Footer */}
-          <Route
+          {/* <Route
             path="/adminDashboard"
             element={
               <ProtectedRouteByRole allowedRoles={["Admin"]}>
@@ -356,7 +357,27 @@ const App = () => {
                 <ActivateDoctorsList />
               </ProtectedRouteByRole>
             }
-          />
+          /> */}
+          <Route
+            path="/adminDashboard"
+            element={
+              <ProtectedRouteByRole allowedRoles={["Admin"]}>
+                <AdminDashboard />
+              </ProtectedRouteByRole>
+            }
+          >
+            {/* الصفحة الرئيسية في لوحة التحكم */}
+            <Route index element={<AdminDoctorsList />} />
+
+            {/* الصفحات الفرعية */}
+            <Route
+              path="activate-doctor/:id"
+              element={<ActivateDoctorsList />}
+            />
+            <Route path="active-doctors" element={<AdminActivateDoctor />} />
+            <Route path="pending-doctors" element={<AdminPendingDoctors />} />
+            <Route path="doctor-details/:id" element={<DoctorDetails />} />
+          </Route>
 
           {/* صفحات المستخدمين (Patient و Doctor) مع Navbar و Footer */}
           <Route
@@ -578,24 +599,24 @@ const App = () => {
             }
           />
           <Route
-            path="/docPatientHistory/:patientId"
+            path="/patient-history/:patientId"
             element={
               <ProtectedRouteByRole allowedRoles={["Doctor"]}>
                 <>
                   <Navbar />
-                  <DocPatientHistory />
+                  <PatientHistory2 />
                   <Footer />
                 </>
               </ProtectedRouteByRole>
             }
           />
           <Route
-            path="/scan/:patientId"
+            path="/scan-upload/:patientId"
             element={
               <ProtectedRouteByRole allowedRoles={["Doctor"]}>
                 <>
                   <Navbar />
-                  <ScanPatientPage />
+                  <ScanUpload />
                   <Footer />
                 </>
               </ProtectedRouteByRole>
