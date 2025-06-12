@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 
 const ScanUpload = () => {
   const { token } = useContext(AppContext);

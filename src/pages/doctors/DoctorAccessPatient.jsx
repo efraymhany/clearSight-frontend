@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { AppContext } from "../context/AppContext"; // Adjust import based on your project structure
+import { AppContext } from "../../context/AppContext"; // Adjust import based on your project structure
 
 const AccessList = () => {
   const { token } = useContext(AppContext); // Assuming you're storing the token in context
