@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
 const ActivateDoctorsList = () => {
-  const { token } = useContext(AppContext);
+  const { token, backendUrl } = useContext(AppContext);
   const { id } = useParams();
   const [doctor, setDoctor] = useState(null);
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const ActivateDoctorsList = () => {
     const fetchDoctor = async () => {
       try {
         const response = await axios.get(
-          `https://clearsight.runasp.net/api/Admins/ActivateDoctorsList`,
+          `${backendUrl}/Admins/ActivateDoctorsList`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

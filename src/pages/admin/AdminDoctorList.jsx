@@ -139,7 +139,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const AdminDoctorsList = () => {
-  const { token } = useContext(AppContext);
+  const { token, backendUrl } = useContext(AppContext);
   const [doctors, setDoctors] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(5);
@@ -147,7 +147,7 @@ const AdminDoctorsList = () => {
 
   const fetchActivateDoctors = async () => {
     try {
-      const response = await axios.get(`https://clearsight.runasp.net/api/Admins/ActivateDoctorsList`, {
+      const response = await axios.get(`${backendUrl}/Admins/ActivateDoctorsList`, {
         headers: {
           Authorization: `Bearer ${token}`,
           accept: 'text/plain',

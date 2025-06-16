@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 
 const ScanUpload = () => {
-  const { token } = useContext(AppContext);
+  const { token, backendUrl } = useContext(AppContext);
   const { patientId } = useParams();
 
   const [file, setFile] = useState(null);
@@ -40,17 +40,14 @@ const ScanUpload = () => {
       const formData = new FormData();
       formData.append("ScanImage", file);
 
-      const response = await fetch(
-        `https://clearsight.runasp.net/api/Doctors/Scan/${patientId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "text/plain",
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(`${backendUrl}/Doctors/Scan/${patientId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "text/plain",
+        },
+        body: formData,
+      });
 
       if (!response.ok) {
         const text = await response.text();
@@ -154,9 +151,7 @@ const ScanUpload = () => {
 
         {/* Result with fade-in and slide-up */}
         {result && showResult && (
-          <div
-            className="flex flex-col md:flex-row bg-green-50 rounded-lg p-6 shadow-lg border border-green-200 transition-all duration-700 ease-out transform animate-fadeInUp"
-          >
+          <div className="flex flex-col md:flex-row bg-green-50 rounded-lg p-6 shadow-lg border border-green-200 transition-all duration-700 ease-out transform animate-fadeInUp">
             {/* Left: Data */}
             <div className="md:w-2/3 pr-6 space-y-3 text-left text-sm">
               <h3 className="text-2xl font-semibold mb-4 text-green-800 border-b border-green-300 pb-2">
@@ -164,17 +159,24 @@ const ScanUpload = () => {
               </h3>
 
               {[
-                { label: "Doctor", value: result.doctorName },
-                { label: "Patient", value: result.patientName },
+                { label: "👨‍⚕️ Doctor", value: result.doctorName },
+                { label: " 🧑 Patient", value: result.patientName },
                 {
-                  label: "Date",
+                  label: " 📅Date",
                   value: result.date
                     ? new Date(result.date).toLocaleString()
                     : "N/A",
                 },
-                { label: "Disease Message", value: result.diseaseMsg },
-                { label: "Arabic Name", value: result.arabicName },
-                { label: "Fundus Camera Result", value: result.fundusCameraResult },
+                { label: "💬Disease Message", value: result.diseaseMsg },
+                { label: "📝Arabic Name", value: result.arabicName },
+                {
+                  label: "  📊 Confidence",
+                  value: result.confidence + "%",
+                },
+                {
+                  label: "🎯Fundus Camera Result",
+                  value: result.fundusCameraResult,
+                },
               ].map(({ label, value }) => (
                 <p key={label} className="text-gray-700">
                   <span className="font-semibold text-blue-700">{label}:</span>{" "}

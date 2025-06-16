@@ -144,7 +144,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 
 const SubmitFeedback = () => {
-  const { token } = useContext(AppContext);
+  const { token, backendUrl } = useContext(AppContext);
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
@@ -178,7 +178,7 @@ const SubmitFeedback = () => {
     try {
       console.log("🔄 Sending feedback request...");
 
-      const response = await fetch("https://clearsight.runasp.net/api/Feedback/SubmitFeedback", {
+      const response = await fetch(`${backendUrl}/Feedback/SubmitFeedback`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

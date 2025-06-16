@@ -10,7 +10,7 @@ export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
 
-  const { token } = useContext(AppContext);
+  const { token, backendUrl } = useContext(AppContext);
   const navigate = useNavigate(); // 👈 redirect
 
   const handleResetPassword = async () => {
@@ -23,7 +23,7 @@ export default function ResetPassword() {
 
     try {
       const response = await axios.post(
-        'https://clearsight.runasp.net/api/Auth/reset-password',
+        `${backendUrl}/Auth/reset-password`,
         {
           email: email,
           verificationCode: code,

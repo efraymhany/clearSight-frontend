@@ -207,13 +207,16 @@
 
 // export default RecentFeedbacks;
 // //////////////
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useContext } from "react";
+import { AppContext } from "../../context/AppContext";
 // import { assets } from "../../assets/assets";
 
 const MAX_COUNT = 10;
 const SLIDE_DURATION = 300;
 
 const RecentFeedbacks = () => {
+    const { token, backendUrl } = useContext(AppContext);
+
   const [feedbacks, setFeedbacks] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -227,7 +230,7 @@ const RecentFeedbacks = () => {
     setLoading(true);
     setError(null);
 
-    fetch(`https://clearsight.runasp.net/api/Feedback/GetRecentFeedBacks?count=${MAX_COUNT}`, {
+    fetch(`${backendUrl}/Feedback/GetRecentFeedBacks?count=${MAX_COUNT}`, {
       headers: { accept: "text/plain" },
     })
       .then((res) => {

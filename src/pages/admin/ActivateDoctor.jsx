@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
 const AdminActivateDoctor = () => {
-  const { token } = useContext(AppContext);
+  const { token, backendUrl } = useContext(AppContext);
   const [searchParams] = useSearchParams();
   const doctorId = searchParams.get("doctorId");
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const AdminActivateDoctor = () => {
     try {
       setLoading(true);
       await axios.post(
-        `https://clearsight.runasp.net/api/Admins/ActivateDoctor`,
+        `${backendUrl}/Admins/ActivateDoctor`,
         {},
         {
           headers: {

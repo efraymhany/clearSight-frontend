@@ -1214,7 +1214,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 
 const DoctorsList = () => {
-  const { token } = useContext(AppContext);
+  const { token, backendUrl } = useContext(AppContext);
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [accessDoctors, setAccessDoctors] = useState([]);
@@ -1259,7 +1259,7 @@ const DoctorsList = () => {
 
   const fetchDoctors = async () => {
     const response = await fetch(
-      `https://clearsight.runasp.net/api/Patients/DoctorsList?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      `${backendUrl}/Patients/DoctorsList?pageNumber=${pageNumber}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {
@@ -1277,7 +1277,7 @@ const DoctorsList = () => {
 
   const fetchAccessDoctors = async () => {
     const response = await fetch(
-      `https://clearsight.runasp.net/api/Patients/access-list?pageNumber=1&pageSize=1000`,
+      `${backendUrl}/Patients/access-list?pageNumber=1&pageSize=1000`,
       {
         method: "GET",
         headers: {
@@ -1301,7 +1301,7 @@ const DoctorsList = () => {
 
     try {
       const response = await fetch(
-        `https://clearsight.runasp.net/api/Patients/grant-access?doctorId=${doctorId}`,
+        `${backendUrl}/api/Patients/grant-access?doctorId=${doctorId}`,
         {
           method: "POST",
           headers: {
@@ -1347,7 +1347,7 @@ const DoctorsList = () => {
 
     try {
       const response = await fetch(
-        `https://clearsight.runasp.net/api/Patients/SearchUsingDoctorName?pageNumber=1&pageSize=5&doctorName=${query}`,
+        `${backendUrl}/Patients/SearchUsingDoctorName?pageNumber=1&pageSize=5&doctorName=${query}`,
         {
           method: "GET",
           headers: {
@@ -1421,7 +1421,7 @@ const DoctorsList = () => {
 
     try {
       const response = await fetch(
-        `https://clearsight.runasp.net/api/Patients/revoke-access?doctorId=${doctorId}`,
+        `${backendUrl}/Patients/revoke-access?doctorId=${doctorId}`,
         {
           method: "POST",
           headers: {

@@ -93,39 +93,55 @@ const AppContextProvider = ({ children }) => {
 
 
 // ✅ تسجيل الخروج
+// Function to add to your AppContext.jsx
 const logout = async () => {
-  if (!token) {
-    setToken("");
-    setUserData(null);
-    return;
-  }
-
   try {
-    const response = await fetch(`${backendUrl}/Auth/revokeToken`, {
-      method: "DELETE",
+    const token = localStorage.getItem('authToken') || localStorage.getItem('refreshToken');
+    
+    if (!token) {
+      console.warn('No token found');
+      // Clear local storage anyway
+      localStorage.clear();
+      // Redirect to login or home page
+      window.location.href = '/login';
+      return;
+    }
+
+    const response = await fetch('https://clearsight.runasp.net/api/Auth/revokeToken', {
+      method: 'DELETE',
       headers: {
-        "accept": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
     });
 
     const data = await response.json();
 
     if (response.ok && data.success) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userData");
-      setToken("");
-      setUserData(null);
-      // يمكنك إعادة التوجيه هنا إذا أردت
-      // navigate("/login");
+      // Success - clear all data
+      localStorage.clear();
+      console.log('Logout successful');
+      // Redirect to login page
+      window.location.href = '/login';
     } else {
-      alert("Logout failed: " + (data.message || "Unknown error"));
+      // Failed but clear data anyway (token might be invalid)
+      localStorage.clear();
+      console.error('Logout failed:', data.message);
+      window.location.href = '/login';
     }
+
   } catch (error) {
-    console.error("Logout error:", error);
-    alert("An error occurred during logout");
+    console.error('Network error during logout:', error);
+    // Clear data even on network error
+    localStorage.clear();
+    window.location.href = '/login';
   }
 };
+
+
+
+
 
 
 

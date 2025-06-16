@@ -170,7 +170,7 @@ const Scan = () => {
                 },
                 // 📝 String
                 {
-                  label: " 📊 Fundus Camera Result",
+                  label: " 🎯 Fundus Camera Result",
                   value: responseData.fundusCameraResult,
                 },
               ].map(({ label, value }) => (

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { AppContext } from "../../context/AppContext"; // Adjust import based on your project structure
 
 const AccessList = () => {
-  const { token } = useContext(AppContext); // Assuming you're storing the token in context
+  const { token, backendUrl } = useContext(AppContext);
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ const AccessList = () => {
     setError(null);
     try {
       const response = await fetch(
-        `https://clearsight.runasp.net/api/Patients/access-list?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+        `${backendUrl}/Patients/access-list?pageNumber=${pageNumber}&pageSize=${pageSize}`,
         {
           method: "GET",
           headers: {

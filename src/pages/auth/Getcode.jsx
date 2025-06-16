@@ -5,9 +5,10 @@ import { AppContext } from '../../context/AppContext';
 import { toast } from 'react-toastify'; // ✅ استدعاء toast
 
 export default function GetCode() {
+    const { token, backendUrl } = useContext(AppContext);
+
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
-  const { token } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleSendCode = async () => {
@@ -20,7 +21,7 @@ export default function GetCode() {
 
     try {
       const response = await axios.get(
-        'https://clearsight.runasp.net/api/Auth/GetCode',
+        `${backendUrl}/Auth/GetCode`,
         {
           params: { email },
           headers: {

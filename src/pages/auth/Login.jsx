@@ -178,6 +178,7 @@ const Login = () => {
 
       const response = await axios.post(`${backendUrl}/Auth/login`, data, {
         headers: { "Content-Type": "multipart/form-data" },
+        withCredentials:true
       });
 
       const dataa = response.data;
