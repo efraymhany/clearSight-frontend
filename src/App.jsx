@@ -42,6 +42,7 @@ import ActivateAccount from "./pages/doctors/ActivateAccount";
 import ScanUpload from "./pages/doctors/ScanDoctor";
 import ResetPassword from "./pages/auth/ResetPassowrd";
 import GetCode from "./pages/auth/Getcode";
+import Greeting from "./components/Greeting";
 
 const App = () => {
   // const { userData } = useContext(AppContext);
@@ -84,6 +85,16 @@ const App = () => {
               <>
                 <Navbar />
                 <Home />
+                <Footer />
+              </>
+            }
+          />
+                    <Route
+            path="/"
+            element={
+              <>
+                <Navbar />
+                <Greeting />
                 <Footer />
               </>
             }

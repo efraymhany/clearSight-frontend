@@ -19,12 +19,32 @@
 //   }
 // })
 // vite.config.js
+
+
+//44444444444444444444
+
+// import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react'
+
+// export default defineConfig({
+//   plugins: [react()],
+//   server: {
+//     port: 5173, 
+//   },
+// })
+//444444444444444
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// ✅ مهم جداً نضيف environment: 'jsdom'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173, // 👈 هنا بتحدد البورت
+    port: 5173,
+  },
+  test: {
+    environment: 'jsdom', // ✅ يشغّل DOM في الاختبارات (زي المتصفح)
+    globals: true,         // (اختياري) يخلي describe/it/expect تشتغل بدون import في كل مرة
+    setupFiles: './setupTests.js', // (اختياري) لو عندك إعدادات مسبقة
   },
 })
