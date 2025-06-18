@@ -34,7 +34,7 @@ const AdminPendingDoctors = () => {
         }
       );
       toast.success("Doctor rejected successfully.");
-      navigate("/AdminDoctorsList");
+      navigate("/AdminDashboard");
     } catch (error) {
       toast.error("Failed to reject the doctor.");
       console.error(error);
@@ -57,10 +57,10 @@ const AdminPendingDoctors = () => {
       <h2 className="text-2xl font-bold text-red-700 mb-6">
         Do you want to reject this doctor?
       </h2>
-      <p className="mb-10 text-gray-600">
+      {/* <p className="mb-10 text-gray-600">
         Doctor ID:{" "}
         <span className="font-mono text-sm text-gray-800">{doctorId}</span>
-      </p>
+      </p> */}
 
       <div className="flex justify-center gap-6">
         <button

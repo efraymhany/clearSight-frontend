@@ -1,6 +1,6 @@
 
 import { createContext, useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 
 export const AppContext = createContext();
 
@@ -21,7 +21,7 @@ const AppContextProvider = ({ children }) => {
 
   const role = userData?.role || "";
 
-  // ✅ حفظ التوكن في اللوكال ستورج
+  // حفظ التوكن في اللوكال ستورج
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
@@ -30,7 +30,7 @@ const AppContextProvider = ({ children }) => {
     }
   }, [token]);
 
-  // ✅ حفظ بيانات المستخدم في اللوكال ستورج
+  // حفظ بيانات المستخدم في اللوكال ستورج
   useEffect(() => {
     if (userData) {
       localStorage.setItem("userData", JSON.stringify(userData));
@@ -39,7 +39,7 @@ const AppContextProvider = ({ children }) => {
     }
   }, [userData]);
 
-  // ✅ ضبط الثيم
+  //  ضبط الثيم
   useEffect(() => {
     localStorage.setItem("theme", theme);
     if (theme === "dark") {
@@ -53,39 +53,39 @@ const AppContextProvider = ({ children }) => {
     setTheme((currTheme) => (currTheme === "light" ? "dark" : "light"));
   };
 
-  // ✅ تحميل بيانات المستخدم من السيرفر
-  const loadUserProfileData = async () => {
-    if (!token) return;
+  //  تحميل بيانات المستخدم من السيرفر
+  // const loadUserProfileData = async () => {
+  //   if (!token) return;
 
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-      const response = await axios.get(`${backendUrl}/Auth/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  //     const response = await axios.get(`${backendUrl}/Auth/profile`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
 
-      if (response.status === 200 && response.data) {
-        setUserData(response.data);
-      } else {
-        throw new Error("Invalid profile response");
-      }
-    } catch (error) {
-      console.error("⚠️ Failed to load profile:", error);
-      setUserData(null);
-      setToken("");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (response.status === 200 && response.data) {
+  //       setUserData(response.data);
+  //     } else {
+  //       throw new Error("Invalid profile response");
+  //     }
+  //   } catch (error) {
+  //     console.error("⚠️ Failed to load profile:", error);
+  //     setUserData(null);
+  //     setToken("");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  // ✅ تحميل البيانات مرة واحدة عند وجود التوكن
-  useEffect(() => {
-    if (token && !userData) {
-      loadUserProfileData();
-    }
-  }, [token]);
+  //  تحميل البيانات مرة واحدة عند وجود التوكن
+  // useEffect(() => {
+  //   if (token && !userData) {
+  //     loadUserProfileData();
+  //   }
+  // }, [token]);
 
-  // ✅ تسجيل الدخول
+  //  تسجيل الدخول
   const login = (receivedToken, userInfo) => {
     setToken(receivedToken);
     setUserData(userInfo);
@@ -145,14 +145,14 @@ const logout = async () => {
 
 
 
-  // ✅ تحديث صورة البروفايل فقط في الستيت واللوكال ستورج
-  const updateProfileImage = (newImageUrl) => {
-    setUserData((prev) => {
-      const updated = { ...prev, profileImage: newImageUrl };
-      localStorage.setItem("userData", JSON.stringify(updated));
-      return updated;
-    });
-  };
+  // تحديث صورة البروفايل فقط في الستيت واللوكال ستورج
+  // const updateProfileImage = (newImageUrl) => {
+  //   setUserData((prev) => {
+  //     const updated = { ...prev, profileImage: newImageUrl };
+  //     localStorage.setItem("userData", JSON.stringify(updated));
+  //     return updated;
+  //   });
+  // };
 
   const value = {
     backendUrl,
@@ -165,8 +165,8 @@ const logout = async () => {
     setLoading,
     login,
     logout,
-    loadUserProfileData,
-    updateProfileImage, // ✅ متاحة للاستخدام
+    // loadUserProfileData,
+    // updateProfileImage, 
     theme,
     toggleTheme,
   };

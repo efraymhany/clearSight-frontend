@@ -1301,7 +1301,7 @@ const DoctorsList = () => {
 
     try {
       const response = await fetch(
-        `${backendUrl}/api/Patients/grant-access?doctorId=${doctorId}`,
+        `${backendUrl}/Patients/grant-access?doctorId=${doctorId}`,
         {
           method: "POST",
           headers: {

@@ -27,7 +27,9 @@ const ActivateDoctorsList = () => {
             },
           }
         );
-        const data = response.data.data.items.find((doc) => doc.doctorId === id);
+        const data = response.data.data.items.find(
+          (doc) => doc.doctorId === id
+        );
         if (data) {
           setDoctor(data);
         } else {
@@ -41,33 +43,23 @@ const ActivateDoctorsList = () => {
     fetchDoctor();
   }, [id, token]);
 
-  const goToActivate = () => navigate("/AdminActivateDoctor");
-  const goToPending = () => navigate("/AdminPendingDoctors");
-
   if (!doctor) {
     return (
-      <div className="text-center mt-20 text-gray-500 text-lg">Loading doctor details...</div>
+      <div className="text-center mt-20 text-gray-500 text-lg">
+        Loading doctor details...
+      </div>
     );
   }
-
-// داخل المكون
-
-const handleAccept = () => {
-  navigate(`/AdminActivateDoctor?doctorId=${doctor.doctorId}`);
-};
-
-const handleReject = () => {
-  navigate(`/AdminPendingDoctors?doctorId=${doctor.doctorId}`);
-};
 
   return (
     <motion.div
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6 }}
-      className="max-w-4xl mx-auto mt-12 bg-gradient-to-br from-blue-50 to-white shadow-xl p-8 rounded-3xl"
+      className="max-w-4xl mx-auto mt-12 bg-gradient-to-br from-blue-50 to-white shadow-xl p-6 sm:p-8 rounded-3xl"
     >
-      <div className="flex items-start gap-8">
+      {/* Responsive Layout */}
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
         <img
           src={doctor.profileImagePath}
           alt={doctor.fullName}
@@ -75,7 +67,7 @@ const handleReject = () => {
         />
 
         <div className="flex-1 space-y-4 text-gray-800">
-          <h2 className="text-3xl font-bold text-blue-800">Doctor Details</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-blue-800">Doctor Details</h2>
           <p>
             <strong className="text-blue-600">Full Name:</strong> {doctor.fullName}
           </p>
@@ -86,7 +78,8 @@ const handleReject = () => {
             <strong className="text-blue-600">Address:</strong> {doctor.address}
           </p>
           <p>
-            <strong className="text-blue-600">Phone:</strong> {doctor.phoneNumbers?.join(", ")}
+            <strong className="text-blue-600">Phone:</strong>{" "}
+            {doctor.phoneNumbers?.join(", ")}
           </p>
           <a
             href={doctor.uploadedDocumentPath}
@@ -100,16 +93,23 @@ const handleReject = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center gap-6 mt-10">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-10">
         <button
-          onClick={handleAccept}
-          className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full shadow transition"
+          onClick={() =>
+            navigate(
+              `/adminDashboard/adminActivateDoctor?doctorId=${doctor.doctorId}`
+            )
+          }
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full shadow transition"
         >
           ✅ Activate Doctor
         </button>
+
         <button
-          onClick={handleReject}
-          className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow transition"
+          onClick={() =>
+            navigate(`/adminDashboard/adminPendingDoctors?doctorId=${doctor.doctorId}`)
+          }
+          className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-full shadow transition"
         >
           ❌ Reject Doctor
         </button>

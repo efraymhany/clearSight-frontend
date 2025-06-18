@@ -1,6 +1,6 @@
 // import React, { useContext, useState, useEffect } from "react";
 // import axios from "axios";
-// import { AppContext } from "../context/AppContext";
+// import { AppContext } from "../../context/AppContext";
 // import { useNavigate } from "react-router-dom";
 
 // const EditPatientProfile = () => {
@@ -14,7 +14,6 @@
 //   const [message, setMessage] = useState("");
 //   const [loading, setLoading] = useState(false);
 
-//   // ✅ جلب بيانات المريض عند تحميل الصفحة
 //   useEffect(() => {
 //     const fetchProfile = async () => {
 //       try {
@@ -28,7 +27,10 @@
 
 //         if (fullName) setFullName(fullName);
 //         if (phoneNumbers?.length) setPhoneNumbers(phoneNumbers);
-//         if (profileImageUrl) setPreviewImage(profileImageUrl);
+//         if (profileImageUrl) {
+//           setPreviewImage(profileImageUrl);
+//           localStorage.setItem("profileImage", profileImageUrl);
+//         }
 //       } catch (error) {
 //         setMessage("Error loading profile data.");
 //       }
@@ -56,13 +58,22 @@
 //   const handleImageChange = (e) => {
 //     const file = e.target.files[0];
 //     setProfileImage(file);
+
 //     if (file) {
 //       const reader = new FileReader();
 //       reader.onloadend = () => {
-//         setPreviewImage(reader.result);
+//         const base64Image = reader.result;
+//         setPreviewImage(base64Image);
+//         localStorage.setItem("profileImage", base64Image);
 //       };
 //       reader.readAsDataURL(file);
 //     }
+//   };
+
+//   const base64ToFile = async (base64Data, filename = "profile.jpg") => {
+//     const res = await fetch(base64Data);
+//     const blob = await res.blob();
+//     return new File([blob], filename, { type: blob.type });
 //   };
 
 //   const handleSubmit = async (e) => {
@@ -72,11 +83,19 @@
 
 //     const formData = new FormData();
 //     formData.append("FullName", fullName);
+
 //     phoneNumbers.forEach((phone) => {
 //       if (phone.trim()) formData.append("PhoneNumbers", phone);
 //     });
+
 //     if (profileImage) {
 //       formData.append("ProfileImage", profileImage);
+//     } else {
+//       const storedImageUrl = localStorage.getItem("profileImage");
+//       if (storedImageUrl && storedImageUrl.startsWith("data:image")) {
+//         const oldImageFile = await base64ToFile(storedImageUrl);
+//         formData.append("ProfileImage", oldImageFile);
+//       }
 //     }
 
 //     try {
@@ -90,6 +109,9 @@
 
 //       if (response.data?.success || response.status === 200) {
 //         setMessage("Profile updated successfully! Redirecting...");
+//         if (previewImage) {
+//           localStorage.setItem("profileImage", previewImage);
+//         }
 //         setTimeout(() => {
 //           navigate("/PatientProfile");
 //         }, 2000);
@@ -186,7 +208,7 @@
 //               onClick={() => addArrayItem(setPhoneNumbers, phoneNumbers)}
 //               className="text-blue-600 hover:underline transition text-sm"
 //             >
-//               + Add phone number
+//               {/* + Add phone number */}
 //             </button>
 //           </div>
 
@@ -206,6 +228,7 @@
 // };
 
 // export default EditPatientProfile;
+
 ////////////////
 
 import React, { useContext, useState, useEffect } from "react";

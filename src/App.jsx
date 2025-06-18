@@ -1,4 +1,3 @@
-
 import React, { useContext } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -26,7 +25,7 @@ import GlaucomaPage from "./pages/Dieses/Glaucoma";
 import DiabeticRetinopathy from "./pages/Dieses/DiabeticRetinopathy";
 import AdminLogin from "./pages/admin/AdminLoign";
 import AdminDoctorsList from "./pages/admin/AdminDoctorList";
-import ActivateDoctorsList from "./pages/admin/AdminDoctorsList2";
+import ActivateDoctorsList from "./pages/admin/ActivateDoctorList";
 import AdminActivateDoctor from "./pages/admin/ActivateDoctor";
 import AdminPendingDoctors from "./pages/admin/RejectDoctor";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -44,9 +43,8 @@ import ScanUpload from "./pages/doctors/ScanDoctor";
 import ResetPassword from "./pages/auth/ResetPassowrd";
 import GetCode from "./pages/auth/Getcode";
 
-
 const App = () => {
-  // const { userData } = useContext(AppContext); 
+  // const { userData } = useContext(AppContext);
 
   return (
     <>
@@ -54,7 +52,6 @@ const App = () => {
         <ToastContainer />
 
         <Routes>
-        
           <Route
             path="/adminDashboard"
             element={
@@ -71,8 +68,13 @@ const App = () => {
               path="activate-doctor/:id"
               element={<ActivateDoctorsList />}
             />
-            <Route path="active-doctors" element={<AdminActivateDoctor />} />
-            <Route path="pending-doctors" element={<AdminPendingDoctors />} />
+            <Route
+              path="adminActivateDoctor"
+              element={<AdminActivateDoctor />}
+            />
+
+
+            <Route path="adminPendingDoctors" element={<AdminPendingDoctors />} />
           </Route>
 
           {/* صفحات المستخدمين (Patient و Doctor) مع Navbar و Footer */}
@@ -98,7 +100,7 @@ const App = () => {
               </ProtectedRouteByRole>
             }
           />
-          
+
           <Route
             path="/services"
             element={
